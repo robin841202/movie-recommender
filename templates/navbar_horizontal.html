@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #174069; font-weight: bold; font-family: 'Microsoft JhengHei'">
+    <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="openNav()">&#9776;</button>
+    <a class="navbar-brand" style="margin-left: 30px" href="#">輿情大數據</a>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">首頁</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'chart_topkey' %}">熱門關鍵詞繪圖</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'call_keyword' %}">你關心的關鍵詞</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app_news_rcmd:index' %}">為你推薦新聞</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app_midterm:newsInfo' %}">中時電子報分析</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app_midterm:showWordCloud' %}">文字雲生成</a>
+                </li>
+
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+
+        </div>
+
+    </nav>

@@ -1,0 +1,100 @@
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .searchTerm {
+        top: 50%;
+        padding: 5px;
+        font-size: 13px;
+        border: 1px solid grey;
+        background: #f1f1f1;
+        border-radius: 5px;
+
+        float: left;
+        width: 80%;
+    }
+    #nav{
+        position:fixed;
+        width: 100%;
+        top:0;
+        z-index: 1;
+        white-space: nowrap;
+        text-align: center;
+    }
+    #main{
+        margin-top:100px;
+    }
+    #mySidebar{
+        position:fixed;
+        top:0;
+    }
+    #openNav{
+        position: absolute;
+        left:0;
+        display: inline-block;
+    }
+    #Title_div{
+        text-align: center;
+        display:inline-block;
+    }
+    #search{
+        position: absolute;
+        right:15px;
+        bottom: 15px;
+        display: inline-block;
+    }
+    #search .btn-outline-primary{
+        float: left;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 13px;
+        width:20%;
+    }
+</style>
+<div id="mySidebar" class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-black" style="display:none; font-family: 'Microsoft JhengHei';font-size: 20px;z-index:5">
+    <button class="w3-bar-item w3-button w3-xlarge w3-hover-blue-gray" onclick="closeNav()">關閉 &times;</button>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'chart_topkey' %}">熱門關鍵詞繪圖</a>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'call_keyword' %}">你關心的關鍵詞</a>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'app_news_rcmd:index' %}">為你推薦新聞</a>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'app_midterm:newsInfo' %}">中時電子報分析</a>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'app_midterm:showWordCloud' %}">文字雲生成</a>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'namespace_app_callSentimentApi:index' %}">文本情緒分類</a>
+    <div align="center">
+        <hr size="4px" width="90%">
+    </div>
+    <a class="w3-bar-item w3-button w3-hover-white" style="text-decoration: none;" href="{% url 'app_movie:moviesInfo' %}">電影推薦系統</a>
+</div>
+
+<div class="w3-overlay w3-animate-opacity" onclick="closeNav()" style="cursor:pointer" id="myOverlay"></div>
+
+<div id="nav" class="w3-black">
+    <button id="openNav" class="w3-button w3-black w3-xlarge" onclick="openNav()">&#9776;</button>
+    <div id="Title_div" class="w3-container">
+        <h2 style="font-family:'Microsoft JhengHei';">{{title}} </h2>
+    </div>
+    {% if search == True %}
+        <div id="search">
+            <input id="search_text" type="text" placeholder="Search..." class="searchTerm">
+            <button id="search_btn" type="button" class="btn btn-outline-primary"><i class="fa fa-search"></i></button>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    {% if title == "電影推薦系統" %}
+        document.getElementById("Title_div").setAttribute("onclick", "window.location = {% url 'app_movie:moviesInfo' %}");
+        document.getElementById("Title_div").setAttribute("style", "cursor:pointer");
+    {% endif %}
+    function openNav() {
+        document.getElementById("main").style.marginLeft = "15%";
+        document.getElementById("mySidebar").style.width = "15%";
+        document.getElementById("mySidebar").style.display = "block";
+        document.getElementById("myOverlay").style.display = "block";
+    }
+
+    /* Set the width of the side navigation to 0 and the left margin of the page content to 0, and the background color of body to white */
+    function closeNav() {
+        document.getElementById("main").style.marginLeft = "0%";
+        document.getElementById("mySidebar").style.display = "none";
+        document.getElementById("myOverlay").style.display = "none";
+    }
+</script>

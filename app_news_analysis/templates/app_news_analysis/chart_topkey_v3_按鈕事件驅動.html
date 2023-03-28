@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>關鍵字新聞熱門度分析</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+
+
+
+
+<body>
+
+
+<div class="container">
+    <h1>簡易的輿情分析功能</h1>
+    <p>展示熱門度分析</p>
+
+
+    <div class="row">
+
+        <!-- 關鍵字輸入column區塊   col-lg-6  內部是 card 區-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h6 text-uppercase mb-0">新聞熱門關鍵字瀏覽與繪圖</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <!--submit按鈕form group-->
+                    <form class="form-horizontal" action="{% url 'chart_topkey' %}" id="myForm" name="category" method="GET">
+                        <!-- {% csrf_token %} 如果用POST，必須要加上這行指令-->
+
+                        <!--新聞類別選單 form group-->
+                        <div class="form-group row">
+
+                            <label class="col-sm-3 form-control-label">新聞類別</label>
+                            <div class="col-md-9 select mb-3">
+                                <select id="cat_select" name="news_category" class="form-control">
+                                    <!--<option>請選擇</option>-->
+                                    <option>請選擇</option>
+                                    <option>政治</option>
+                                    <option>科技</option>
+                                    <option>娛樂</option>
+                                    <option>運動</option>
+                                    <option>生活</option>
+                                    <option>產經</option>
+                                    <option>證卷</option>
+                                    <option>國際</option>
+                                    <option>社會</option>
+                                    <option>文化</option>
+                                    <option>全部</option>
+                                </select>
+                                <small class="form-text text-muted ml-3">請選擇新聞類別
+                                </small>
+                            </div>
+
+                        </div> <!--form group-->
+
+                        <!--熱門詞多少個?form group-->
+                        <div class="form-group row">
+                            <label class="col-md-3 form-control-label">多少個熱門詞?</label>
+                            <div class="col-md-9">
+                                <input id="topk_keys" name="topk" value="15"
+                                       class="form-control form-control-success">
+                                <small class="form-text text-muted ml-3">內定值為15
+                                </small>
+                            </div>
+                        </div><!--form group-->
+
+                        <!--submit按鈕form group-->
+                        <div class="form-group row">
+                            <div class="col-md-9 ml-auto">
+
+                                <button type="button" class="btn btn-primary btn-lg" id="btn_submit">查詢</button>
+                            </div>
+                        </div><!--form group-->
+
+                    </form>
+                </div> <!--card body-->
+            </div><!--column-->
+        </div><!-- 區塊結束-->
+
+
+        <!-- 關鍵字區塊-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h6 text-uppercase mb-0">熱門關鍵字</h3>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        {% if content %}
+
+                            {% for item in content.labels %}
+                                <li>  {{ item }} </li>
+                            {% endfor %}
+
+                            {% for item in content.values %}
+                                <li>  {{ item }} </li>
+                            {% endfor %}
+
+
+
+                        {% endif %}
+
+
+                    </ul>
+
+
+                </div>
+            </div>
+        </div><!-- 區塊結束-->
+
+        <!-- 關鍵字區塊-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h6 text-uppercase mb-0">熱門關鍵字</h3>
+                </div>
+                <div class="card-body">
+
+                    繪圖區
+                    <canvas id='mychart'></canvas>
+
+                </div>
+            </div>
+        </div><!-- 區塊結束-->
+
+
+    </div> <!-- row結束-->
+</div> <!-- container結束-->
+
+
+</body>
+</html>
+
+<!-- chartjs圖js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+<script>
+
+
+
+   // jQuery(document).ready(function () {
+
+        $('#btn_submit').on('click', function () {
+
+
+            $('#myForm').trigger('submit');
+            //alert("btn pressed!");
+            //console.log("btn pressed!");
+        });// btn_submit event
+
+
+   $('#cat_select').on('change', function () {
+
+
+            var cat  = $(this).val();
+
+            console.log(cat);
+            if (cat === '請選擇') {
+                alert('請選擇正確的類別');
+                return;
+            }
+
+       $('#myForm').trigger('submit');
+
+   });
+
+
+        //alert('ready!');
+
+        var ctx1 = document.getElementById("mychart");
+        //console.log('this is '+ctx1);
+        var chartdata = {{ content|safe }};
+        var values = chartdata.values;
+        var labels = chartdata.labels;
+        console.log(values);
+
+        //餵給chart的資料
+        var data = {
+            labels: labels,
+            datasets: [{
+                label: '我的繪圖',
+                data: values,
+                //backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple'],
+                backgroundColor: randomColors( values.length ),
+
+            }]
+        };
+
+        //餵給chart的選項  y坐標軸從零開始顯示
+        var options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+        };
+
+
+        new Chart(ctx1, {
+            type: 'bar',
+            data: data,
+            options: options,
+
+
+        });
+
+  //  }); //document
+
+
+
+    // **產生隨機顏色
+    function randomColors(length) {
+        var pool = [];
+        for (i = 0; i < length; i++) {
+            //pool.push(dynamicColors2());
+            pool.push(dynamicColors());
+        }
+        return pool;
+    }
+
+    var dynamicColors2 = function () {
+        return '#' + (Math.random().toString(16) + '0000000').slice(2, 8);
+    };
+
+    function dynamicColors() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return "rgba(" + r + "," + g + "," + b + ", 0.5)";
+    }
+
+
+
+
+</script>

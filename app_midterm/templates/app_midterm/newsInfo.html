@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>中時電子報分析</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<!--
+    <nav style="background-color: #174069; height: 60px; text-align: center">
+        <h2 style="font-family: 'Microsoft JhengHei'; color: white;"><b>關鍵字新聞熱門度分析</b></h2>
+    </nav>
+-->
+{% include 'navbar.html' with title="中時電子報分析" %}
+<div id="main">
+<div class="container">
+
+<br>
+    <div class="row">
+
+        <!-- 關鍵字輸入column區塊   col-lg-6  內部是 card 區-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header" style="background-color: cornflowerblue">
+                    <h5 style="font-family: 'Microsoft JhengHei'; color: white"><b>新聞來源</b></h5>
+                </div>
+
+                <div class="card-body" style="background-color: aliceblue">
+
+                    <!--submit按鈕form group-->
+                        <!-- {% csrf_token %} 如果用POST，必須要加上這行指令-->
+
+                        <!--熱門詞多少個?form group-->
+                        <div class="form-group row">
+                            <label class="col-md-3 form-control-label" style="font-family: 'Microsoft JhengHei"><b>新聞連結</b></label>
+                            <div class="col-md-9">
+                                <input id="news_link" name="link" value="https://www.chinatimes.com"
+                                       class="form-control form-control-success">
+                                <small class="form-text text-muted ml-3" style="font-family: 'Microsoft JhengHei">預設中時電子報
+                                </small>
+                            </div>
+                        </div><!--form group-->
+
+                        <!--submit按鈕form group-->
+                        <div class="form-group row">
+                            <div class="col-md-9 ml-auto">
+                                <button type="button" class="btn btn-dark btn-block" id="btn_submit" style="font-family: 'Microsoft JhengHei">查詢</button>
+                            </div>
+                        </div><!--form group-->
+
+                </div> <!--card body-->
+            </div><!--column-->
+        </div><!-- 區塊結束-->
+
+        <!-- 關鍵字區塊-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header" style="background-color: cornflowerblue">
+                    <h5><b style="font-family: 'Microsoft JhengHei'; color: white">新聞資訊</b></h5>
+                </div>
+                <div class="card-body" style="background-color: aliceblue">
+                    <label id="news_title" style="font-family: 'Microsoft JhengHei"><b>新聞標題：</b></label>
+                    <br>
+                    <div id="photo_container"></div>
+                    <label style="font-family: 'Microsoft JhengHei"><b>內容前5句：</b></label>
+                    <ul id="top5_sent" style="font-family: 'Microsoft JhengHei"></ul>
+                    <label style="font-family: 'Microsoft JhengHei"><b>摘要：</b></label>
+                    <ul id="summary" style="font-family: 'Microsoft JhengHei"></ul>
+                    <label style="font-family: 'Microsoft JhengHei"><b>熱門關鍵詞：</b></label>
+                    <table id="hotkeys" border="3" style="font-family: 'Microsoft JhengHei">
+                        <tr>
+                            <td><b>關鍵詞</b></td>
+                            <td><b>詞性</b></td>
+                            <td><b>詞頻</b></td>
+                        </tr>
+                    </table>
+                    <label id="link" style="font-family: 'Microsoft JhengHei"><b>新聞連結：</b></label>
+
+                </div>
+            </div>
+        </div><!-- 區塊結束-->
+
+        <!-- chartjs繪圖區塊-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header" style="background-color: cornflowerblue">
+                    <h5><b style="font-family: 'Microsoft JhengHei'; color: white">熱門關鍵字直方圖</b></h5>
+                </div>
+                <div class="card-body" style="background-color: aliceblue">
+                    <canvas id="mychart"></canvas>
+                </div>
+            </div>
+        </div><!-- 區塊結束-->
+
+        <!-- wordcloudjs繪圖區塊-->
+        <div class="col-lg-6 mb-5">
+            <div class="card">
+                <div class="card-header" style="background-color: cornflowerblue">
+                    <h5><b style="font-family: 'Microsoft JhengHei'; color: white">熱門關鍵字文字雲</b></h5>
+                </div>
+                <div class="card-body" style="background-color: aliceblue">
+                    <canvas id="mychart2"></canvas>
+                </div>
+            </div>
+        </div><!-- 區塊結束-->
+
+
+    </div> <!-- row結束-->
+</div> <!-- container結束-->
+
+</div>
+</body>
+</html>
+
+
+<!-- java scrip通常寫在網頁最後面，等頁面初始化之後才會執行-->
+
+<!-- chartjs圖js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<!-- wordcloud2 js -->
+<script src="https://cdn.bootcss.com/wordcloud2.js/1.1.0/wordcloud2.js"></script>
+
+<script>
+    //頁面 ready好之後，執行function()
+    //這是jQuery的指令寫法  使用$或jQuery 都可以
+    $(document).ready(function () {
+        $('#btn_submit').on('click', function () {
+            var link = $('#news_link').val()
+            console.log(link);
+
+            $.ajax({
+                type: "GET",
+                url:"api_get_info",
+                data:{"news_link": link},
+                success:function (received) {
+                    console.log(received);
+                    if (received.hasOwnProperty('errorThrown')){
+                        alert("request failed. 請確定輸入一篇中時新聞來源");
+                    } else{
+                        var title = received.title;
+                        var image_src = received.image_src;
+                        var top5sentences = received.top5sentences;
+                        var summary = received.summary;
+                        var topwords = received.topwords;
+                        show_info(title,image_src, top5sentences, summary, topwords, link);
+                        showchart(topwords, 10)
+                        showcloud(topwords, 10)
+                    }
+                }
+            });
+        });
+    }); //document ready
+
+
+    function show_info(title, image_src, top5sent, summary, topwords, link) {
+        $('#news_title').empty();
+        $('#photo_container').empty();
+        $('#top5_sent').empty();
+        $('#summary').empty();
+        $('#hotkeys').empty();
+        $('#link').empty();
+
+        $('#news_title').append("<b>新聞標題：</b>"+title);
+        $('#photo_container').append("<img src=\""+image_src+"\" width=\"450\" height=\"300\">");
+
+        for (var i = 0;i<top5sent.length;i++){
+            var line = "<li>" + top5sent[i] + "</li>";
+            $('#top5_sent').append(line);
+        }
+        for (var j = 0;j<summary.length;j++){
+            var line = "<li>" + summary[j] + "</li>";
+            $('#summary').append(line);
+        }
+
+
+        $('#hotkeys').append("<tr><td><b>關鍵詞</b></td><td><b>詞性</b></td><td><b>詞頻</b></td>></tr>");
+        for (var k = 0;k<topwords.length;k++){
+            var [word, pos, freq] = topwords[k]
+            if(freq >= 2){
+                var row = "<tr>" + "<td>" + word + "</td>" + "<td>" + pos + "</td>" + "<td>" + freq + "</td>" + "</tr>";
+                $('#hotkeys').append(row);
+            }
+
+        }
+
+        var hyperlink = "<a href=\"" + link +"\">"+ link +"</a>";
+        $('#link').append("<b>新聞連結：</b>"+ hyperlink);
+
+
+    }
+
+    function showchart(topwords, num) {
+        $('#mychart').empty();
+
+        console.log(topwords);
+        var words = [];
+        var poses = [];
+        var freqs = [];
+        for (var i=0;i<num;i++){
+            words.push(topwords[i][0]);
+            poses.push(topwords[i][1]);
+            freqs.push(topwords[i][2]);
+        }
+
+
+        //餵給chart的資料
+        var data = {
+            labels: words,
+            datasets: [{
+                label: "前" + num + "關鍵字繪圖",
+                data: freqs,
+                backgroundColor: randomColors(freqs.length),
+
+            }]
+        };
+        //餵給chart的選項  y坐標軸從零開始顯示
+        var options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+        };
+
+        var ctx1 = document.getElementById("mychart");
+
+        //產生一個圖物件 使用一次，因此不用給名稱(匿名即可)
+        var chart1 = new Chart(ctx1, {
+            type: 'bar',
+            data: data,
+            options: options,
+        });
+    }
+
+    function showcloud(topwords, num) {
+        $('#mychart2').empty();
+
+        console.log(topwords);
+        var lists = [];
+        for (var j=0;j<num;j++){
+            var tuple = [topwords[j][0], topwords[j][2]];
+            lists.push(tuple);
+        }
+
+
+        var options = eval({
+        "list": lists,
+            "drawOutOfBound":false,
+        "gridSize": 16, // size of the grid in pixels
+        "weightFactor": 10, // number to multiply for size of each word in the list
+        "fontWeight": 'bold', // 'normal', 'bold' or a callback
+        "fontFamily": 'Microsoft JhengHei', // font to use
+        "color": 'random-light', // 'random-dark' or 'random-light'
+        "backgroundColor": '#333', // the color of canvas
+        "rotateRatio": 1 // probability for the word to rotate. 1 means always rotate
+    });
+
+    var canvas = document.getElementById('mychart2');
+    canvas.height = 250;
+    canvas.width = 450;
+    WordCloud(canvas, options);
+
+    }
+
+
+
+
+    //產生隨機顏色
+
+    function dynamicColors() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return "rgba("+r+","+g+",+"+b+",0.8)";
+
+    }
+
+    function randomColors(length) {
+        var pool = [];
+        for (i=0;i<length;i++){
+            pool.push(dynamicColors());
+        }
+        return pool;
+
+    }
+
+</script>
